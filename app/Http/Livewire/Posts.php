@@ -3,6 +3,7 @@
 namespace App\Http\Livewire;
 
 use App\Models\Post;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -10,7 +11,8 @@ use Livewire\WithFileUploads;
 class Posts extends Component
 {
     use WithFileUploads;
-    public $user_id , $title , $body , $image;
+    public $user_id , $title , $body , $image , $currentImage;
+    public $postId = null;
     public $showModalForm = false;
     public function showCreatePostModal()
     {
@@ -33,6 +35,42 @@ class Posts extends Component
         $post->body = $this->body;
         $post->image = $image_name;
         $post->save();
+        $this->reset();
+    }
+
+    public function showEditPostModal($id)
+    {
+        $this->reset();
+        $this->showModalForm = true;
+        $this->postId = $id;
+        $this->loadEditForm();
+    }
+
+    public function loadEditForm()
+    {
+        $post = Post::findOrFail($this->postId);
+        $this->title = $post->title;
+        $this->body = $post->body;
+        $this->currentImage = $post->image;
+    }
+
+    public function updatePost()
+    {
+        $this->validate([
+            'title' => 'required',
+            'body' => 'required',
+            'image' => 'nullable|image|max:1024',
+        ]);
+        if ($this->image){
+            Storage::delete('public/photos/'.$this->currentImage);
+            $this->currentImage = $this->image->getClientOriginalName();
+            $this->image->storeAs('public/photos/' , $this->currentImage);
+        }
+        Post::find($this->postId)->update([
+            'title' => $this->title,
+            'body' => $this->body,
+            'image' => $this->currentImage,
+        ]);
         $this->reset();
     }
 
