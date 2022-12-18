@@ -70,6 +70,12 @@
                         </div>
                     </div>
                     <div class="sm:col-span-6">
+                        <div class="w-full m-2 p-2">
+                            @if($image)
+                                Photo Preview:
+                                <img src="{{ $image->temporaryUrl() }}">
+                            @endif
+                        </div>
                         <label for="title" class="block text-sm font-medium text-gray-700"> Post Image </label>
                         <div class="mt-1">
                             <input type="file" id="image" wire:model="image" name="image" class="block w-full transition duration-150 ease-in-out appearance-none bg-white border border-gray-400 rounded-md py-2 px-3 text-base leading-normal transition duration-150 ease-in-out sm:text-sm sm:leading-5" />
